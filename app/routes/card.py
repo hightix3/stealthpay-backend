@@ -3,10 +3,9 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import stripe, os
 
-from app.compliance import ensure_kyc_verified
 from app.database import get_db
 from app.models import User, VirtualCard
-from app.routes.auth import get_current_user, verify_totp
+from app.routes.auth import get_current_user
 
 router = APIRouter()
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
@@ -14,17 +13,10 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
 class CardCreateRequest(BaseModel):
     spending_limit: float = 500.0
     currency: str = "usd"
-    otp_code: str | None = None
 
 class CardToggleRequest(BaseModel):
     card_id: int
     active: bool
-    otp_code: str | None = None
-
-def _ensure_mfa(user: User, otp_code: str | None):
-    if user.two_fa_enabled or user.is_admin:
-        if not user.two_fa_secret or not otp_code or not verify_totp(user.two_fa_secret, otp_code):
-            raise HTTPException(status_code=401, detail="MFA approval required for this action")
 
 @router.post("/create")
 def create_virtual_card(
@@ -32,8 +24,6 @@ def create_virtual_card(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    ensure_kyc_verified(current_user)
-    _ensure_mfa(current_user, req.otp_code)
     try:
         cardholder = stripe.issuing.Cardholder.create(
             name=current_user.username,
@@ -75,8 +65,6 @@ def toggle_card(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    ensure_kyc_verified(current_user)
-    _ensure_mfa(current_user, req.otp_code)
     card = db.query(VirtualCard).filter(
         VirtualCard.id == req.card_id,
         VirtualCard.user_id == current_user.id

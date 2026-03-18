@@ -31,11 +31,6 @@ Edit `.env` and fill in your API keys:
 - `WEB3_PROVIDER_URL` — from https://infura.io (Infura project key)
 - `JWT_SECRET` — generate with: `python -c "import secrets; print(secrets.token_hex(32))"`
 - `APP_SECRET_KEY` — same method as above
-- Security controls:
-  - `REQUEST_SIGNATURE_SECRET` — HMAC key for `X-Request-Signature`
-  - `ALLOWED_IPS` / `IP_RISK_BLOCKLIST` — comma-separated IPs for allow/deny logic
-  - `AML_AMOUNT_THRESHOLD`, `COLD_STORAGE_THRESHOLD` — risk and cold-storage cutoffs
-  - `REFRESH_TOKEN_EXPIRE_DAYS`, `ACCESS_TOKEN_EXPIRE_MINUTES` — token lifetimes
 
 ### 3. Initialize Database
 ```bash
@@ -96,10 +91,4 @@ For production, deploy to Railway/Render/VPS and update `ALLOWED_ORIGINS` in `.e
 - All bank/transaction references are masked with virtual RTP proxies
 - Raw account numbers are never stored
 - Monero transactions use local wallet RPC for privacy
-- JWT tokens expire after 60 minutes (configurable) and now support refresh tokens + blacklist for forced logout
-- Admin logins and sensitive transfers enforce MFA; enable 2FA via `/api/settings/2fa`
-- KYC is required for money movement; submit docs via `/api/settings/kyc/submit` and admins approve with `/api/settings/kyc/decision`
-- AML monitoring blocks high-risk amounts/IPs and logs alerts for review
-- Operational wallets are separated from reserve (cold) wallets for large-value flows (see `COLD_STORAGE_THRESHOLD`)
-- API layer enforces TLS, optional IP allowlists, and HMAC request signatures (`X-Request-Signature`, `X-Request-Timestamp`)
-- Production secrets (JWT, Stripe, Plaid, signature keys) must live in a secure secrets manager (e.g., AWS Secrets Manager/Vault). Do not store real keys in `.env`; use `.env` only for local development placeholders.
+- JWT tokens expire after 60 minutes (configurable)
