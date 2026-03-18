@@ -159,3 +159,4 @@ def internal_transfer(
     if reason:
         create_aml_alert(db, current_user.id, reason, risk_level, client_ip, None)
     return {"message": f"Transferred {req.amount} {req.currency} to {req.to_username}", "status": "completed" if risk_level == "low" else "pending_review"}
+

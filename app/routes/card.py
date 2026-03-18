@@ -90,3 +90,4 @@ def toggle_card(
         return {"message": f"Card {'activated' if req.active else 'deactivated'}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+

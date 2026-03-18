@@ -61,35 +61,39 @@ For production, deploy to Railway/Render/VPS and update `ALLOWED_ORIGINS` in `.e
 
 ### Auth
 - `POST /api/auth/register` — register user
-- `POST /api/auth/login` — login, returns JWT
-- `GET /api/auth/me` — get current user
+- `POST /api/auth/login` — login with optional MFA, returns JWT + refresh token
+- `GET /api/auth/me` — get current user (includes `kyc_status`, `is_admin`)
+- `POST /api/auth/refresh` — exchange refresh token for new access + refresh token
+- `POST /api/auth/logout` — revoke access and refresh tokens
 
 ### Wallet
-- `GET /api/wallet/balances` — get all wallet balances
-- `POST /api/wallet/deposit` — deposit via RTP (bank account input)
+- `GET /api/wallet/balances` — get all wallet balances (includes `purpose`, `storage`)
+- `POST /api/wallet/deposit` — deposit via RTP (KYC + MFA + AML checks applied)
 - `POST /api/wallet/plaid/link-token` — Plaid Link token
 - `POST /api/wallet/plaid/exchange` — exchange Plaid token
 
 ### Transfer
-- `POST /api/transfer/sepa` — SEPA transfer (EUR)
-- `POST /api/transfer/ach` — ACH transfer (USD)
-- `POST /api/transfer/internal` — internal user-to-user transfer
+- `POST /api/transfer/sepa` — SEPA transfer (EUR); KYC + MFA + AML gated
+- `POST /api/transfer/ach` — ACH transfer (USD); KYC + MFA + AML gated
+- `POST /api/transfer/internal` — internal user-to-user transfer; KYC + MFA + AML gated
 
 ### Crypto
-- `POST /api/crypto/send` — send BTC/ETH/USDC/XMR
-- `POST /api/crypto/swap` — swap between currencies
-- `GET /api/crypto/address/{currency}` — get deposit address
+- `POST /api/crypto/send` — send BTC/ETH/USDC/XMR; KYC + MFA + AML gated
+- `POST /api/crypto/swap` — swap between currencies; KYC + MFA + AML gated
+- `GET /api/crypto/address/{currency}` — get deposit address (KYC required)
 
 ### Virtual Card
-- `POST /api/card/create` — create Stripe virtual card
+- `POST /api/card/create` — create Stripe virtual card (KYC + MFA required)
 - `GET /api/card/list` — list cards
-- `POST /api/card/toggle` — activate/deactivate card
+- `POST /api/card/toggle` — activate/deactivate card (KYC + MFA required)
 
 ### Settings
-- `GET /api/settings/profile` — get profile
+- `GET /api/settings/profile` — get profile (includes `kyc_status`)
 - `PUT /api/settings/profile` — update username/language
 - `POST /api/settings/change-password` — change password
-- `POST /api/settings/2fa` — toggle 2FA
+- `POST /api/settings/2fa` — toggle 2FA (OTP confirmation required)
+- `POST /api/settings/kyc/submit` — submit KYC documents
+- `POST /api/settings/kyc/decision` — admin: approve/reject KYC submission
 - `GET /api/settings/transactions` — transaction history
 
 ## Security Notes

@@ -133,7 +133,10 @@ def decide_kyc(
     user = db.query(User).filter(User.id == req.user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    verification = db.query(KycVerification).filter(KycVerification.user_id == user.id).order_by(KycVerification.created_at.desc()).first()
+    verification = db.query(KycVerification).filter(
+        KycVerification.user_id == user.id,
+        KycVerification.status == "pending"
+    ).order_by(KycVerification.created_at.desc()).first()
     if not verification:
         raise HTTPException(status_code=400, detail="No KYC submission to review")
     verification.status = "verified" if req.approve else "rejected"
@@ -162,3 +165,4 @@ def get_transactions(
         "description": t.description,
         "created_at": t.created_at.isoformat()
     } for t in txs]
+

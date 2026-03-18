@@ -126,3 +126,4 @@ def exchange_public_token(
         return {"access_token": response["access_token"], "item_id": response["item_id"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+

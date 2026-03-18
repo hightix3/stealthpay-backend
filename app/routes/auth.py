@@ -18,7 +18,6 @@ from app.database import get_db
 from app.models import RefreshToken, RevokedToken, User, Wallet
 from app.config import get_settings
 from app.security import get_client_ip
-from app.compliance import ensure_kyc_verified
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -220,3 +219,4 @@ def logout(
             db_token.revoked = True
     db.commit()
     return {"message": "Logged out successfully"}
+

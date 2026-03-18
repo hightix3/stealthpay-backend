@@ -170,3 +170,4 @@ def get_address(
             wallet.address = f"{currency}_ADDR_{current_user.id}_{wallet.id}"
         db.commit()
     return {"currency": currency, "address": wallet.address}
+

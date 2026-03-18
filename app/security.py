@@ -62,7 +62,11 @@ async def verify_signature(request: Request) -> None:
         raise HTTPException(status_code=401, detail="Signature expired")
 
     body = await request.body()
-    payload = f"{timestamp}.{body.decode('utf-8')}"
+    try:
+        body_str = body.decode("utf-8")
+    except UnicodeDecodeError:
+        body_str = body.hex()
+    payload = f"{timestamp}.{body_str}"
     expected = hmac.new(
         settings.request_signature_secret.encode("utf-8"),
         payload.encode("utf-8"),

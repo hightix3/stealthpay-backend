@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.database import engine, Base
 from app.routes import auth, wallet, transfer, crypto, card, settings
 from app.config import get_settings
@@ -35,3 +36,4 @@ app.include_router(settings.router, prefix="/api/settings", tags=["settings"])
 @app.get("/")
 async def root():
     return {"status": "StealthPay API running"}
+
