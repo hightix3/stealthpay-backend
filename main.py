@@ -1,17 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 from app.database import engine, Base
 from app.routes import auth, wallet, transfer, crypto, card, settings
-from app.config import get_settings
-from app.security import apply_security_layers
-
-app_settings = get_settings()
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="StealthPay API", version="1.0.0")
 
-origins = app_settings.allowed_origins if app_settings.allowed_origins else ["*"]
+origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,10 +21,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.middleware("http")
-async def security_middleware(request, call_next):
-    return await apply_security_layers(request, call_next)
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(wallet.router, prefix="/api/wallet", tags=["wallet"])
